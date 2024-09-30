@@ -12,6 +12,3 @@ add_executable(leptjson_test test.c)
 # 这意味着在编译 leptjson_test 时，链接器会链接生成的 leptjson 库，
 # 这样 leptjson_test 就可以使用 leptjson 库中定义的函数和数据结构
 target_link_libraries(leptjson_test leptjson)
-
-# 设置 C++ 标准
-set_target_properties(leptjson_test PROPERTIES CXX_STANDARD 11)
