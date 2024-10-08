@@ -1,3 +1,6 @@
+#ifdef WINDOWS
+#define
+#endif
 #include "leptjson.h"
 #include <stdio.h>
 #include <assert.h>
