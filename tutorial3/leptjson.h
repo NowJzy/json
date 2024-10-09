@@ -18,14 +18,10 @@ typedef enum {
 } lept_type;
 
 
-typedef struct {
-    // char* c;
-    // size_t len;
-    // double n;
-    
+typedef struct {    
     /* 一个值不可能同时为数字和字符串，因此我们可使用 C 语言的 union 来节省内存 */
     union {
-        struct { char* c; size_t len; } s;      /* string */
+        struct { char* s; size_t len; } s;      /* string */
         double n;                               /* number */
     } u;
     
