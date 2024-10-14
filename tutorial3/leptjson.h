@@ -1,7 +1,7 @@
 /**
  * @file leptjson.h
  * @author nicejzy
- * @brief parser json type of null and boolean
+ * @brief parser json type of string
  * @version 0.1
  * @date 2024-09-30
  * 

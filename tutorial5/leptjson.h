@@ -1,9 +1,9 @@
 /**
  * @file leptjson.h
  * @author nicejzy
- * @brief parser json type of unicode
+ * @brief parser json type of array
  * @version 0.1
- * @date 2024-10-11
+ * @date 2024-10-12
  * 
  * @copyright Copyright (c) 2024
  * 
@@ -17,16 +17,16 @@ typedef enum {
     LEPT_NULL, LEPT_FALSE, LEPT_TRUE, LEPT_NUMBER, LEPT_STRING, LEPT_ARRAY, LEPT_OBJECT
 } lept_type;
 
+typedef struct lept_value lept_value;
 
-typedef struct {    
-    /* 一个值不可能同时为数字和字符串，因此我们可使用 C 语言的 union 来节省内存 */
+struct lept_value {
     union {
-        struct { char* s; size_t len; } s;      /* string */
-        double n;                               /* number */
+        struct { lept_value* e; size_t size; } a;       /* array */
+        struct { char* s; size_t len; } s;              /* string */
+        double n;                                       /* number */
     } u;
-    
     lept_type type;
-} lept_value;
+};
 
 
 enum {
@@ -39,7 +39,8 @@ enum {
     LEPT_PARSE_INVALID_STRING_ESCAPE,
     LEPT_PARSE_INVALID_STRING_CHAR,
     LEPT_PARSE_INVALID_UNICODE_HEX,
-    LEPT_PARSE_INVALID_UNICODE_SURROGATE
+    LEPT_PARSE_INVALID_UNICODE_SURROGATE,
+    LEPT_PARSE_MISS_COMMA_OR_SQUARE_BRACKET
 };
 
 /* 定义了一个宏 lept_init，用于初始化 lept_value 结构体，将其类型设置为 LEPT_NULL */
@@ -66,5 +67,8 @@ void lept_set_number(lept_value* v, double n);
 const char* lept_get_string(const lept_value* v);
 size_t lept_get_string_length(const lept_value* v);
 void lept_set_string(lept_value* v, const char* s, size_t len);
+
+size_t lept_get_array_size(const lept_value* v);
+lept_value* lept_get_array_element(const lept_value* v, size_t index);
 
 #endif
