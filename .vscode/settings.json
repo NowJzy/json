@@ -1,6 +1,7 @@
 {
     "files.associations": {
         "*.m": "matlab",
-        "crtdbg.h": "c"
+        "crtdbg.h": "c",
+        "leptjson.h": "c"
     }
 }

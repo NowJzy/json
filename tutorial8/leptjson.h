@@ -1,29 +1,19 @@
-/**
- * @file leptjson.h
- * @author nicejzy
- * @brief json generator: JSON 生成器（generator）把树形数据结构转换成 JSON 文本。这个过程又称为 字符串化（stringify）
- * @version 0.1
- * @date 2024-10-15
- * 
- * @copyright Copyright (c) 2024
- * 
- */
 #ifndef LEPTJSON_H__
 #define LEPTJSON_H__
 
 #include <stddef.h>     /* size_t */
 
-typedef enum {
-    LEPT_NULL, LEPT_FALSE, LEPT_TRUE, LEPT_NUMBER, LEPT_STRING, LEPT_ARRAY, LEPT_OBJECT
-} lept_type;
+typedef enum { LEPT_NULL, LEPT_FALSE, LEPT_TRUE, LEPT_NUMBER, LEPT_STRING, LEPT_ARRAY, LEPT_OBJECT } lept_type;
+
+#define LEPT_KEY_NOT_EXIST ((size_t)-1)
 
 typedef struct lept_value lept_value;
 typedef struct lept_member lept_member;
 
 struct lept_value {
     union {
-        struct { lept_member* m; size_t size; } o;      /* object: members, member count */
-        struct { lept_value* e; size_t size; } a;       /* array: elements, element counts */
+        struct { lept_member* m; size_t size, capacity; } o;      /* object: members, member count */
+        struct { lept_value* e; size_t size, capacity; } a;       /* array: elements, element counts */
         struct { char* s; size_t len; } s;              /* string: null-terminated string, string length*/
         double n;                                       /* number */
     } u;
@@ -34,7 +24,6 @@ struct lept_member {
     char* k; size_t klen;    /* string: member key, key length */
     lept_value v;           /* value */
 };
-
 
 enum {
     LEPT_PARSE_OK = 0,
@@ -53,39 +42,56 @@ enum {
     LEPT_PARSE_MISS_COMMA_OR_CURLY_BRACKET
 };
 
-/* 定义了一个宏 lept_init，用于初始化 lept_value 结构体，将其类型设置为 LEPT_NULL */
 #define lept_init(v) do { (v)->type = LEPT_NULL; } while(0)
 
 int lept_parse(lept_value* v, const char* json);
 char* lept_stringify(const lept_value* v, size_t* length);
 
+void lept_copy(lept_value* dst, const lept_value* src);
+void lept_move(lept_value* dst, lept_value* src);
+void lept_swap(lept_value* lhs, lept_value* rhs);
+
 void lept_free(lept_value* v);
 
 lept_type lept_get_type(const lept_value* v);
+int lept_is_equal(const lept_value* lhs, const lept_value* rhs);
 
-/* 将 lept_value 设置为 null，通过调用 lept_free 释放内存 */
 #define lept_set_null(v) lept_free(v)
 
-/* 声明了获取和设置布尔值的函数 */
 int lept_get_boolean(const lept_value* v);
 void lept_set_boolean(lept_value* v, int b);
 
-/* 声明了获取和设置数字的函数 */
 double lept_get_number(const lept_value* v);
 void lept_set_number(lept_value* v, double n);
 
-/* 声明了获取字符串、获取字符串长度以及设置字符串的函数 */
 const char* lept_get_string(const lept_value* v);
 size_t lept_get_string_length(const lept_value* v);
 void lept_set_string(lept_value* v, const char* s, size_t len);
 
+void lept_set_array(lept_value* v, size_t capacity);
 size_t lept_get_array_size(const lept_value* v);
+size_t lept_get_array_capacity(const lept_value* v);
+void lept_reserve_array(lept_value* v, size_t capacity);
+void lept_shrink_array(lept_value* v);
+void lept_clear_array(lept_value* v);
 lept_value* lept_get_array_element(const lept_value* v, size_t index);
+lept_value* lept_pushback_array_element(lept_value* v);
+void lept_popback_array_element(lept_value* v);
+lept_value* lept_insert_array_element(lept_value* v, size_t index);
+void lept_erase_array_element(lept_value* v, size_t index, size_t count);
 
-
+void lept_set_object(lept_value* v, size_t capacity);
 size_t lept_get_object_size(const lept_value* v);
+size_t lept_get_object_capacity(const lept_value* v);
+void lept_reserve_object(lept_value* v, size_t capacity);
+void lept_shrink_object(lept_value* v);
+void lept_clear_object(lept_value* v);
 const char* lept_get_object_key(const lept_value* v, size_t index);
 size_t lept_get_object_key_length(const lept_value* v, size_t index);
 lept_value* lept_get_object_value(const lept_value* v, size_t index);
+size_t lept_find_object_index(const lept_value* v, const char* key, size_t klen);
+lept_value* lept_find_object_value(const lept_value* v, const char* key, size_t klen);
+lept_value* lept_set_object_value(lept_value* v, const char* key, size_t klen);
+void lept_remove_object_value(lept_value* v, size_t index);
 
 #endif
