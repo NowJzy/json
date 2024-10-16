@@ -325,15 +325,15 @@ static int lept_parse_object(lept_context* c, lept_value* v) {
 }
 
 static int lept_parse_value(lept_context* c, lept_value* v) {
-    switch(*c->json) {
-        case 't' : return lept_parse_literal(c, v, "true", LEPT_TRUE);
-        case 'f' : return lept_parse_false(c, v, "false", LEPT_FALSE);
-        case 'n' : return lept_parse_null(c, v, "null", LEPT_NULL);
-        default  : return lept_parse_number(c, v);
-        case '"' : return lept_parse_string(c, v); 
-        case '[' : return lept_parse_array(c, v);
-        case '{' : return lept_parse_object(c, v);
-        case '\0' : return LEPT_PARSE_EXPECT_VALUE;
+    switch (*c->json) {
+        case 't':  return lept_parse_literal(c, v, "true", LEPT_TRUE);
+        case 'f':  return lept_parse_literal(c, v, "false", LEPT_FALSE);
+        case 'n':  return lept_parse_literal(c, v, "null", LEPT_NULL);
+        default:   return lept_parse_number(c, v);
+        case '"':  return lept_parse_string(c, v);
+        case '[':  return lept_parse_array(c, v);
+        case '{':  return lept_parse_object(c, v);
+        case '\0': return LEPT_PARSE_EXPECT_VALUE;
     }
 }
 
@@ -357,7 +357,7 @@ int lept_parse(lept_value* v, const char* json) {
         }
     }
     assert(c.top == 0);
-    fre(c.stack);
+    free(c.stack);
     return ret;
 }
 

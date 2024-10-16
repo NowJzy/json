@@ -166,18 +166,18 @@ static const char* lept_parse_hex4(const char* p, unsigned* u) {
  * @param u
  */
 static void lept_encode_utf8(lept_context* c, unsigned u) {
-    if(u <= 0x7F)                               // 单字节编码（U+0000 到 U+007F）
+    if(u <= 0x7F)                               /* 单字节编码（U+0000 到 U+007F）*/
         PUTC(c, u & 0xFF);
-    else if(u <= 0x7FF) {                       // 双字节编码（U+0080 到 U+07FF）
+    else if(u <= 0x7FF) {                       /* 双字节编码（U+0080 到 U+07FF）*/
         PUTC(c, 0xC0 | ((u >> 6) & 0xFF));
         PUTC(c, 0x80 | ( u       & 0x3F));
     }
-    else if(u <= 0xFFFF) {                      // 三字节编码（U+0800 到 U+FFFF）
+    else if(u <= 0xFFFF) {                      /* 三字节编码（U+0800 到 U+FFFF）*/
         PUTC(c, 0xE0 | ((u >> 12) & 0xFF));
         PUTC(c, 0x80 | ((u >>  6) & 0x3F));
         PUTC(c, 0x80 | ( u        & 0x3F));
     }
-    else {                                      // 四字节编码（U+10000 到 U+10FFFF）
+    else {                                      /* 四字节编码（U+10000 到 U+10FFFF）*/
         assert(u <= 0x10FFFF);
         PUTC(c, 0xF0 | ((u >> 18) & 0xFF));
         PUTC(c, 0x80 | ((u >> 12) & 0x3F));
@@ -295,7 +295,7 @@ static int lept_parse_array(lept_context* c, lept_value* v) {
     }
 
     /* Pop and free values on the stack */
-    for(int i = 0; i < size; i++) {
+    for(i = 0; i < size; i++) {
         lept_free((lept_value*)lept_context_pop(c, sizeof(lept_value)));
     }
     return ret;
@@ -310,13 +310,14 @@ static int lept_parse_array(lept_context* c, lept_value* v) {
  * @return int 
  */
 static int lept_parse_value(lept_context* c, lept_value* v) {
-    switch(*c->json) {
-        case 't' : return lept_parse_literal(c, v, "true", LEPT_TRUE);
-        case 'f' : return lept_parse_false(c, v, "false", LEPT_FALSE);
-        case 'n' : return lept_parse_null(c, v, "null", LEPT_NULL);
-        default  : return lept_parse_number(c, v);
-        case '"' : return lept_parse_string(c, v); 
-        case '\0' : return LEPT_PARSE_EXPECT_VALUE;
+    switch (*c->json) {
+        case 't':  return lept_parse_literal(c, v, "true", LEPT_TRUE);
+        case 'f':  return lept_parse_literal(c, v, "false", LEPT_FALSE);
+        case 'n':  return lept_parse_literal(c, v, "null", LEPT_NULL);
+        default:   return lept_parse_number(c, v);
+        case '"':  return lept_parse_string(c, v);
+        case '[':  return lept_parse_array(c, v);
+        case '\0': return LEPT_PARSE_EXPECT_VALUE;
     }
 }
 
@@ -334,7 +335,6 @@ int lept_parse(lept_value* v, const char* json) {
     c.json = json;
     c.stack = NULL;
     c.size = c.top = 0;
-    // v->type = LEPT_NULL;
     lept_init(v);
     lept_parse_whitespace(&c);
 
@@ -346,7 +346,7 @@ int lept_parse(lept_value* v, const char* json) {
         }
     }
     assert(c.top == 0);
-    fre(c.stack);
+    free(c.stack);
     return ret;
 }
 

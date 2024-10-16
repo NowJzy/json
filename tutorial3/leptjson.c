@@ -14,10 +14,10 @@
 #define LEPT_PARSE_STACK_INIT_SIZE 256
 #endif
 
-#define EXPECT(c, ch)   do { assert(*c->json == (ch)); c->json++; } while(0)
-#define ISDIGIT(ch)     ((ch) >= '0' && (ch) <= '9')
-#define ISDIGIT1TO9(ch) ((ch) >= '1' && (ch) <= '9')
-#define PUTC(c, ch)        do { *(char*)lept_context_push(c, sizeof(char)) == (ch); } while(0)
+#define EXPECT(c, ch)       do { assert(*c->json == (ch)); c->json++; } while(0)
+#define ISDIGIT(ch)         ((ch) >= '0' && (ch) <= '9')
+#define ISDIGIT1TO9(ch)     ((ch) >= '1' && (ch) <= '9')
+#define PUTC(c, ch)         do { *(char*)lept_context_push(c, sizeof(char)) == (ch); } while(0)
 
 /**
  * @brief 为了减少解析函数之间传递多个参数，
@@ -147,11 +147,11 @@ static int lept_parse_string(lept_context* c, lept_value* v) {
 
 static int lept_parse_value(lept_context* c, lept_value* v) {
     switch(*c->json) {
-        case 't' : return lept_parse_literal(c, v, "true", LEPT_TRUE);
-        case 'f' : return lept_parse_false(c, v, "false", LEPT_FALSE);
-        case 'n' : return lept_parse_null(c, v, "null", LEPT_NULL);
-        default  : return lept_parse_number(c, v);
-        case '"' : return lept_parse_string(c, v); 
+        case 't' :  return lept_parse_literal(c, v, "true", LEPT_TRUE);
+        case 'f' :  return lept_parse_literal(c, v, "false", LEPT_FALSE);
+        case 'n' :  return lept_parse_literal(c, v, "null", LEPT_NULL);
+        default :   return lept_parse_number(c, v);
+        case '"':   return lept_parse_string(c, v);
         case '\0' : return LEPT_PARSE_EXPECT_VALUE;
     }
 }
@@ -163,7 +163,6 @@ int lept_parse(lept_value* v, const char* json) {
     c.json = json;
     c.stack = NULL;
     c.size = c.top = 0;
-    // v->type = LEPT_NULL;
     lept_init(v);
     lept_parse_whitespace(&c);
 
@@ -175,7 +174,7 @@ int lept_parse(lept_value* v, const char* json) {
         }
     }
     assert(c.top == 0);
-    fre(c.stack);
+    free(c.stack);
     return ret;
 }
 
